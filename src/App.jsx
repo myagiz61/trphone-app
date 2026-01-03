@@ -10,6 +10,7 @@ import Kvkk from "./pages/Kvkk";
 import Terms from "./pages/Terms";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import ChangePassword from "./pages/account/ChangePassword";
 
 export default function App() {
   return (
@@ -19,7 +20,7 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/premium" element={<Premium />} />
         <Route path="/odeme" element={<Payment />} />
-        <Route path="/reset-password/:token" element={<ResetPassword />} />
+        <Route path="/account/change-password" element={<ChangePassword />} />
 
         <Route path="/gizlilik" element={<Privacy />} />
         <Route path="/kvkk" element={<Kvkk />} />
