@@ -11,6 +11,7 @@ import Terms from "./pages/Terms";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ChangePassword from "./pages/account/ChangePassword";
+import IlanRedirect from "./pages/IlanRedirect";
 
 export default function App() {
   return (
@@ -25,6 +26,8 @@ export default function App() {
         <Route path="/gizlilik" element={<Privacy />} />
         <Route path="/kvkk" element={<Kvkk />} />
         <Route path="/kullanim-kosullari" element={<Terms />} />
+        {/* 🔥 YENİ */}
+        <Route path="/ilan/:listingId" element={<IlanRedirect />} />
       </Routes>
       <Footer />
     </BrowserRouter>
