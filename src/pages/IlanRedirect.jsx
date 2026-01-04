@@ -2,58 +2,49 @@ import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 
 export default function IlanRedirect() {
-  const { ilanId } = useParams();
+  const { listingId } = useParams();
 
   useEffect(() => {
-    if (!ilanId) return;
+    if (!listingId) return;
 
-    const userAgent = navigator.userAgent.toLowerCase();
+    const ua = navigator.userAgent.toLowerCase();
+    const isIOS = /iphone|ipad|ipod/.test(ua);
+    const isAndroid = /android/.test(ua);
 
-    const isIOS = /iphone|ipad|ipod/.test(userAgent);
-    const isAndroid = /android/.test(userAgent);
+    const appLink = `trphone://ilan/${listingId}`;
 
-    // 🔗 Deep link (APP)
-    const appLink = `trphone://ilan/${ilanId}`;
-
-    // 🏪 Store linkleri
     const iosStore =
       "https://apps.apple.com/tr/app/sahiplerinden-al-sat-bul/id6744275276";
-
     const androidStore =
-      "https://play.google.com/store/apps/details?id=com.trphone"; // paket adını netleştiririz
+      "https://play.google.com/store/apps/details?id=com.trphone";
 
-    // 🚀 Önce app'i açmayı dene
+    // 1️⃣ Önce uygulamayı açmayı dene
     window.location.href = appLink;
 
-    // ⏱️ Açılmazsa store'a gönder
+    // 2️⃣ Açılmazsa mağazaya gönder
     const timeout = setTimeout(() => {
       if (isIOS) {
         window.location.href = iosStore;
       } else if (isAndroid) {
         window.location.href = androidStore;
       } else {
-        // Desktop fallback (web tanıtım sayfası)
         window.location.href = "https://trphone.net";
       }
-    }, 2200);
+    }, 2000);
 
     return () => clearTimeout(timeout);
-  }, [ilanId]);
+  }, [listingId]);
 
   return (
     <div style={styles.page}>
       <div style={styles.card}>
         <div style={styles.logo}>TRPHONE</div>
-
         <div style={styles.loader} />
-
         <h2 style={styles.title}>İlan açılıyor</h2>
         <p style={styles.text}>
           Uygulamanız yüklüyse otomatik olarak açılacaktır.
         </p>
-        <p style={styles.sub}>
-          Aksi halde App Store / Play Store’a yönlendirileceksiniz.
-        </p>
+        <p style={styles.sub}>Yüklü değilse mağazaya yönlendirileceksiniz.</p>
       </div>
     </div>
   );
