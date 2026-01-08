@@ -12,6 +12,9 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ChangePassword from "./pages/account/ChangePassword";
 import IlanRedirect from "./pages/IlanRedirect";
+import Iletisim from "./components/Iletisim";
+import IadeIptal from "./components/IadeIptal";
+import MesafeliSatis from "./components/MesafeliSatis";
 
 export default function App() {
   return (
@@ -28,6 +31,9 @@ export default function App() {
         <Route path="/kullanim-kosullari" element={<Terms />} />
         {/* 🔥 YENİ */}
         <Route path="/ilan/:listingId" element={<IlanRedirect />} />
+        <Route path="/iletisim" element={<Iletisim />} />
+        <Route path="/iade-iptal" element={<IadeIptal />} />
+        <Route path="/mesafeli-satis" element={<MesafeliSatis />} />
       </Routes>
       <Footer />
     </BrowserRouter>
