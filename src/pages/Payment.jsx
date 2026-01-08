@@ -151,17 +151,9 @@ export default function PaymentPage() {
         </div>
 
         <div style={styles.logos}>
-          <img
-            style={styles.logoImg}
-            src="src/assets/iyzico.png"
-            alt="iyzico ile öde"
-          />
-          <img style={styles.logoImg} src="src/assets/vısa.png" alt="Visa" />
-          <img
-            style={styles.logoImg}
-            src="src/assets/master.png"
-            alt="MasterCard"
-          />
+          <img style={styles.logoImg} src="/iyzico.png" alt="iyzico ile öde" />
+          <img style={styles.logoImg} src="/vısa.png" alt="Visa" />
+          <img style={styles.logoImg} src="/master.png" alt="MasterCard" />
         </div>
 
         <p style={styles.digitalNote}>

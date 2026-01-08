@@ -51,9 +51,9 @@ export default function Footer() {
           <h4 className="text-white font-semibold">Ödeme & Güvenlik</h4>
 
           <div className="flex items-center gap-3">
-            <img src="src/assets/iyzico.png" alt="iyzico" className="h-6" />
-            <img src="src/assets/vısa.png" alt="Visa" className="h-6" />
-            <img src="src/assets/master.png" alt="Mastercard" className="h-6" />
+            <img src="/iyzico.png" alt="iyzico" className="h-6" />
+            <img src="/vısa.png" alt="Visa" className="h-6" />
+            <img src="/master.png" alt="Mastercard" className="h-6" />
           </div>
 
           <p className="text-xs text-gray-500 leading-relaxed">
