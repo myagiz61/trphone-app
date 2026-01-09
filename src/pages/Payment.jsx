@@ -1,15 +1,25 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 export default function PaymentPage() {
   const [loading, setLoading] = useState(false);
   const [approved, setApproved] = useState(false);
+  const [product, setProduct] = useState(null);
+  const [error, setError] = useState(null);
 
+  /* ================= API BASE ================= */
+  const API_BASE =
+    window.location.hostname === "localhost"
+      ? "http://localhost:1967/api"
+      : "https://backend-e5v0.onrender.com/api";
+
+  /* ================= URL PARAMS ================= */
   const params = useMemo(() => new URLSearchParams(window.location.search), []);
   const type = params.get("type"); // premium | boost
   const planKey = params.get("plan"); // basic | standard | pro
   const duration = params.get("duration"); // 24h | 7d | 30d
   const listingId = params.get("listingId");
 
+  /* ================= FALLBACK MAPS (AYNI) ================= */
   const premiumMap = {
     basic: { name: "Basic Premium", price: "₺49,90 / ay" },
     standard: { name: "Standart Premium", price: "₺99,90 / ay" },
@@ -22,22 +32,55 @@ export default function PaymentPage() {
     "30d": { name: "30 Gün Boost", price: "₺199,90" },
   };
 
-  let product = null;
+  /* ================= PREVIEW FETCH ================= */
+  useEffect(() => {
+    const fetchPreview = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/payments/preview`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            type,
+            plan: planKey,
+            duration,
+            listingId,
+          }),
+        });
 
-  if (type === "premium" && planKey && premiumMap[planKey]) {
-    product = premiumMap[planKey];
-  }
+        if (res.ok) {
+          const data = await res.json();
+          setProduct(data.product);
+          return;
+        }
+      } catch (_) {
+        /* backend yoksa sessizce fallback */
+      }
 
-  if (type === "boost" && duration && boostMap[duration] && listingId) {
-    product = boostMap[duration];
-  }
+      // 🔁 FALLBACK (MEVCUT MANTIK)
+      if (type === "premium" && planKey && premiumMap[planKey]) {
+        setProduct(premiumMap[planKey]);
+      } else if (
+        type === "boost" &&
+        duration &&
+        boostMap[duration] &&
+        listingId
+      ) {
+        setProduct(boostMap[duration]);
+      } else {
+        setError("Geçersiz veya eksik ödeme bilgisi.");
+      }
+    };
 
-  if (!product) {
+    fetchPreview();
+  }, [API_BASE, type, planKey, duration, listingId]);
+
+  /* ================= ERROR ================= */
+  if (error || !product) {
     return (
       <div style={styles.container}>
         <h1 style={styles.title}>Ödeme Hatası</h1>
         <div style={styles.warning}>
-          Geçersiz veya eksik ödeme bilgisi.
+          {error || "Geçersiz ödeme bilgisi."}
           <br />
           Lütfen uygulama üzerinden tekrar deneyin.
         </div>
@@ -45,27 +88,28 @@ export default function PaymentPage() {
     );
   }
 
+  /* ================= PAY ================= */
   const handlePay = () => {
     if (!approved) return;
 
     setLoading(true);
 
-    // 🔴 CANLIDA: iyzico checkout form tetiklenecek
     setTimeout(() => {
       alert("TEST MODU: Ödeme başarılı kabul edildi.");
       setLoading(false);
     }, 1500);
   };
 
+  /* ================= UI (AYNI) ================= */
   return (
     <div style={styles.container}>
       <h1 style={styles.title}>Güvenli Ödeme</h1>
 
-      {/* ÜRÜN */}
       <div style={styles.planBox}>
         <div>
           <div style={styles.planName}>{product.name}</div>
           <div style={styles.planPrice}>{product.price}</div>
+
           {type === "boost" && (
             <div style={styles.meta}>
               İlan ID: <b>{listingId}</b>
@@ -75,22 +119,20 @@ export default function PaymentPage() {
         <div style={styles.secureBadge}>🔒 SSL</div>
       </div>
 
-      {/* TEST BİLGİ (canlıda kaldırılacak) */}
       <div style={styles.testInfo}>
         ⚠️ Bu ödeme sayfası şu an <b>TEST MODUNDADIR</b>.<br />
         Canlı ortamda gerçek tahsilat yapılacaktır.
       </div>
 
-      {/* KART FORMU (placeholder) */}
       <div style={styles.card}>
         <input style={styles.input} placeholder="Kart Üzerindeki İsim" />
         <input style={styles.input} placeholder="Kart Numarası" />
+
         <div style={styles.row}>
           <input style={styles.input} placeholder="MM/YY" />
           <input style={styles.input} placeholder="CVV" />
         </div>
 
-        {/* SÖZLEŞME ONAYI */}
         <div style={styles.checkboxRow}>
           <input
             type="checkbox"
@@ -114,7 +156,6 @@ export default function PaymentPage() {
           </label>
         </div>
 
-        {/* ÖDEME BUTONU */}
         <button
           onClick={handlePay}
           disabled={!approved || loading}
@@ -126,39 +167,23 @@ export default function PaymentPage() {
         >
           {loading ? "Ödeme İşleniyor..." : "iyzico ile Öde"}
         </button>
+
+        <div style={styles.paymentLogos}>
+          <img
+            src="/iyzico.png"
+            alt="iyzico ile \xF6de"
+            style={styles.paymentLogo}
+          />
+          <img src="/vısa.png" alt="Visa" style={styles.paymentLogo} />
+          <img src="/master.png" alt="MasterCard" style={styles.paymentLogo} />
+        </div>
       </div>
 
-      {/* HUKUKİ + LOGOLAR */}
       <div style={styles.legalBox}>
         <p>
           Bu ödeme işlemi <b>TRPHONE</b> tarafından,
           <b> iyzico</b> güvenli ödeme altyapısı kullanılarak web sitesi
           üzerinden gerçekleştirilmektedir.
-        </p>
-
-        <div style={styles.legalLinks}>
-          <a href="/gizlilik" target="_blank" rel="noreferrer">
-            Gizlilik Politikası
-          </a>{" "}
-          |{" "}
-          <a href="/iade-iptal" target="_blank" rel="noreferrer">
-            İade & İptal Koşulları
-          </a>{" "}
-          |{" "}
-          <a href="/iletisim" target="_blank" rel="noreferrer">
-            İletişim
-          </a>
-        </div>
-
-        <div style={styles.logos}>
-          <img style={styles.logoImg} src="/iyzico.png" alt="iyzico ile öde" />
-          <img style={styles.logoImg} src="/vısa.png" alt="Visa" />
-          <img style={styles.logoImg} src="/master.png" alt="MasterCard" />
-        </div>
-
-        <p style={styles.digitalNote}>
-          Satın alınan hizmet <b>dijital içerik</b> kapsamındadır. Hizmet
-          ifasına başlandıktan sonra iade edilmez.
         </p>
       </div>
     </div>
@@ -296,5 +321,19 @@ const styles = {
     padding: 16,
     borderRadius: 10,
     textAlign: "center",
+  },
+  paymentLogos: {
+    marginTop: 14,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 16,
+    flexWrap: "wrap",
+  },
+
+  paymentLogo: {
+    height: 28,
+    objectFit: "contain",
+    opacity: 0.9,
   },
 };
