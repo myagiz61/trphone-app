@@ -15,6 +15,7 @@ import IlanRedirect from "./pages/IlanRedirect";
 import Iletisim from "./components/Iletisim";
 import IadeIptal from "./components/IadeIptal";
 import MesafeliSatis from "./components/MesafeliSatis";
+import Pay from "./pages/Pay";
 
 export default function App() {
   return (
@@ -34,6 +35,7 @@ export default function App() {
         <Route path="/iletisim" element={<Iletisim />} />
         <Route path="/iade-iptal" element={<IadeIptal />} />
         <Route path="/mesafeli-satis" element={<MesafeliSatis />} />
+        <Route path="/pay" element={<Pay />} />
       </Routes>
       <Footer />
     </BrowserRouter>
