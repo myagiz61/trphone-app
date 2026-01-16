@@ -1,6 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function Pay() {
+  const iyzicoRef = useRef(null);
+  const [error, setError] = useState(null);
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
 
@@ -21,157 +24,135 @@ export default function Pay() {
           throw new Error(data.message || "Ödeme başlatılamadı");
         }
 
-        document.open();
-        document.write(`
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Güvenli Ödeme • TRPHONE</title>
-
-  <!-- FONT -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-
-  <style>
-    * {
-      box-sizing: border-box;
-      font-family: 'Inter', system-ui, -apple-system;
-    }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background: radial-gradient(circle at top, #0f172a, #020617 70%);
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 420px;
-      background: rgba(15, 23, 42, 0.95);
-      border: 1px solid #1e293b;
-      border-radius: 20px;
-      padding: 24px 22px 28px;
-      box-shadow: 0 20px 60px rgba(0,0,0,.6);
-    }
-
-    .header {
-      text-align: center;
-      margin-bottom: 18px;
-    }
-
-    .logo {
-      height: 34px;
-      margin-bottom: 10px;
-    }
-
-    .title {
-      font-size: 20px;
-      font-weight: 800;
-      color: #facc15;
-      margin-bottom: 6px;
-    }
-
-    .subtitle {
-      font-size: 13px;
-      color: #9ca3af;
-      line-height: 1.4;
-    }
-
-    .secure {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      font-size: 12px;
-      color: #22c55e;
-      margin: 14px 0 18px;
-      font-weight: 600;
-    }
-
-    .iyzico-box {
-      background: #020617;
-      border: 1px solid #1e293b;
-      border-radius: 14px;
-      padding: 14px;
-    }
-
-    .footer {
-      margin-top: 18px;
-      text-align: center;
-      font-size: 11px;
-      color: #9ca3af;
-      line-height: 1.5;
-    }
-
-    .footer b {
-      color: #e5e7eb;
-    }
-
-    @media (max-width: 420px) {
-      body {
-        padding: 14px;
-      }
-      .container {
-        border-radius: 16px;
-        padding: 20px 16px 24px;
-      }
-    }
-  </style>
-</head>
-
-<body>
-  <div class="container">
-    <div class="header">
-      <img src="/logo1.png" alt="TRPHONE" class="logo" />
-      <div class="title">Güvenli Ödeme</div>
-      <div class="subtitle">
-        Ödemeniz <b>iyzico</b> altyapısı ile güvenle işlenmektedir.
-        Kart bilgileriniz TRPHONE sunucularında saklanmaz.
-      </div>
-    </div>
-
-    <div class="secure">🔒 256-bit SSL • 3D Secure</div>
-
-    <div class="iyzico-box">
-      ${data.checkoutFormContent}
-    </div>
-
-    <div class="footer">
-      Bu ödeme işlemi <b>TRPHONE</b> tarafından<br/>
-      <b>iyzico</b> güvenli ödeme altyapısı kullanılarak gerçekleştirilmektedir.
-    </div>
-  </div>
-</body>
-</html>
-        `);
-        document.close();
+        iyzicoRef.current.innerHTML = data.checkoutFormContent;
       })
       .catch((err) => {
-        document.body.innerHTML = `
-          <div style="
-            min-height:100vh;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            background:#020617;
-            color:#f87171;
-            font-family:Inter,system-ui;
-            padding:24px;
-            text-align:center;
-          ">
-            ${err.message}
-          </div>
-        `;
+        setError(err.message);
       });
   }, []);
 
-  return null;
+  return (
+    <div style={styles.page}>
+      <div style={styles.card}>
+        {/* HEADER */}
+        <div style={styles.header}>
+          <img src="/logo1.png" alt="TRPHONE" style={styles.logo} />
+          <h1 style={styles.title}>Güvenli Ödeme</h1>
+          <p style={styles.subtitle}>
+            Ödemeniz <b>iyzico</b> altyapısı ile güvenle gerçekleştirilmektedir.
+            Kart bilgileriniz sistemlerimizde saklanmaz.
+          </p>
+        </div>
+
+        {/* BADGES */}
+        <div style={styles.badges}>
+          <span>🔒 256-bit SSL</span>
+          <span>🛡️ 3D Secure</span>
+          <span>🏦 iyzico</span>
+        </div>
+
+        {/* CONTENT */}
+        <div style={styles.contentBox}>
+          {!error ? (
+            <div ref={iyzicoRef} />
+          ) : (
+            <div style={styles.errorBox}>{error}</div>
+          )}
+        </div>
+
+        {/* FOOTER */}
+        <div style={styles.footer}>
+          Bu ödeme işlemi <b>TRPHONE</b> tarafından,
+          <br />
+          <b>iyzico</b> güvenli ödeme altyapısı kullanılarak yapılmaktadır.
+        </div>
+      </div>
+    </div>
+  );
 }
+
+/* =======================
+   STYLES – KURUMSAL
+======================= */
+
+const styles = {
+  page: {
+    minHeight: "100vh",
+    background: "radial-gradient(circle at top, #0f172a 0%, #020617 70%)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 16,
+    fontFamily: "Inter, system-ui, -apple-system",
+    color: "#fff",
+  },
+
+  card: {
+    width: "100%",
+    maxWidth: 420,
+    background: "rgba(15, 23, 42, 0.96)",
+    borderRadius: 22,
+    border: "1px solid #1e293b",
+    padding: "22px 20px 26px",
+    boxShadow: "0 25px 80px rgba(0,0,0,.65)",
+  },
+
+  header: {
+    textAlign: "center",
+    marginBottom: 18,
+  },
+
+  logo: {
+    height: 36,
+    marginBottom: 10,
+  },
+
+  title: {
+    fontSize: 22,
+    fontWeight: 800,
+    color: "#facc15",
+    marginBottom: 6,
+  },
+
+  subtitle: {
+    fontSize: 13,
+    color: "#9ca3af",
+    lineHeight: 1.5,
+  },
+
+  badges: {
+    display: "flex",
+    justifyContent: "center",
+    gap: 10,
+    fontSize: 11,
+    fontWeight: 600,
+    color: "#22c55e",
+    marginBottom: 16,
+    flexWrap: "wrap",
+  },
+
+  contentBox: {
+    background: "#020617",
+    border: "1px solid #1e293b",
+    borderRadius: 16,
+    padding: 14,
+  },
+
+  errorBox: {
+    background: "rgba(248,113,113,.1)",
+    border: "1px solid #f87171",
+    borderRadius: 12,
+    padding: 14,
+    textAlign: "center",
+    color: "#fca5a5",
+    fontSize: 13,
+  },
+
+  footer: {
+    marginTop: 18,
+    textAlign: "center",
+    fontSize: 11,
+    color: "#9ca3af",
+    lineHeight: 1.5,
+  },
+};
